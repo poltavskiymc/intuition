@@ -1,0 +1,70 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Intuition - macOS",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "args": [
+        "-d",
+        "macos",
+        "--no-pub"
+      ],
+      "console": "debugConsole",
+      "cwd": "${workspaceFolder}",
+      "toolArgs": [
+        "--no-pub"
+      ],
+      "env": {
+        "PATH": "/Users/poltavchenko_av/.rbenv/shims:${env:PATH}",
+        "ARCHS": "arm64"
+      }
+    },
+    {
+      "name": "Intuition - Windows",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "args": [
+        "-d",
+        "windows"
+      ],
+      "console": "debugConsole",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Intuition - Web (Chrome)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "args": [
+        "-d",
+        "chrome"
+      ],
+      "console": "debugConsole",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Intuition - Debug (macOS)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "args": [
+        "-d",
+        "macos",
+        "--no-pub",
+        "--verbose"
+      ],
+      "console": "debugConsole",
+      "cwd": "${workspaceFolder}",
+      "toolArgs": [
+        "--no-pub"
+      ],
+      "env": {
+        "PATH": "/Users/poltavchenko_av/.rbenv/shims:${env:PATH}",
+        "ARCHS": "arm64"
+      }
+    }
+  ]
+}

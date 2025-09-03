@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/models/isar_models.dart';
+import '../../../shared/services/mock_database_service.dart';
 
 class GameFieldScreen extends StatefulWidget {
   final String gameId;
@@ -24,39 +25,13 @@ class _GameFieldScreenState extends State<GameFieldScreen> {
   }
 
   void _loadGame() {
-    // TODO: Загрузить игру и факты из БД
-    // Пока используем моковые данные
-    _game = Game(
-      name: 'День рождения Игоря',
-      description: 'Угадайте друзей Игоря по фактам',
-    );
+    // Загружаем игру из mock базы данных
+    _game =
+        MockDatabaseService.getGameById(widget.gameId) ??
+        MockDatabaseService.getAllGames().first;
 
-    _facts = [
-      Fact(
-        text: 'Любит играть в футбол',
-        isSecret: true,
-        personId: '1',
-        isRevealed: false,
-      ),
-      Fact(
-        text: 'Работает программистом',
-        isSecret: false,
-        personId: '1',
-        isRevealed: false,
-      ),
-      Fact(
-        text: 'Живет в Москве',
-        isSecret: true,
-        personId: '2',
-        isRevealed: false,
-      ),
-      Fact(
-        text: 'Изучает английский язык',
-        isSecret: false,
-        personId: '2',
-        isRevealed: false,
-      ),
-    ];
+    // Загружаем все факты
+    _facts = MockDatabaseService.getAllFacts();
   }
 
   @override
