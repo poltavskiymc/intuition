@@ -8,8 +8,13 @@ class MenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Интуиция'),
+        backgroundColor: AppTheme.backgroundColor,
+        title: const Text(
+          'Интуиция',
+          style: TextStyle(color: AppTheme.primaryColor),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -27,7 +32,9 @@ class MenuScreen extends StatelessWidget {
             const SizedBox(height: 32),
             Text(
               'Добро пожаловать в игру "Интуиция"!',
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                color: AppTheme.primaryColor,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
@@ -97,6 +104,7 @@ class MenuScreen extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return Card(
+      color: AppTheme.cardColor,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -107,8 +115,9 @@ class MenuScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppTheme.primaryColor, width: 1),
                 ),
                 child: Icon(icon, color: AppTheme.primaryColor, size: 24),
               ),
@@ -121,6 +130,7 @@ class MenuScreen extends StatelessWidget {
                       title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
+                        color: AppTheme.primaryColor,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -146,33 +156,44 @@ class MenuScreen extends StatelessWidget {
       color: AppTheme.cardColor,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.primaryColor, width: 1),
+              ),
+              child: Icon(
+                Icons.info_outline,
+                color: AppTheme.primaryColor,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.info_outline,
-                  color: AppTheme.primaryColor,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
                 Text(
-                  'Как играть',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                  'Как играть:',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '1. Выберите карточку с фактом\n'
+                  '2. Открывайте новые карточки для получения подсказок\n'
+                  '3. Угадайте персонажа по собранным фактам',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colors.grey[600],
+                    height: 1.4,
+                  ),
                 ),
               ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '1. Выберите карточку с фактом\n'
-              '2. Открывайте новые карточки для получения подсказок\n'
-              '3. Угадайте персонажа по собранным фактам',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-                height: 1.4,
-              ),
             ),
           ],
         ),
