@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intuition/core/theme/app_theme.dart';
 import 'package:intuition/shared/models/isar_models.dart';
 import 'package:intuition/shared/services/mock_database_service.dart';
+import 'package:intuition/shared/widgets/app_logo.dart';
 
 class GameFieldScreen extends StatefulWidget {
   final String gameId;
@@ -38,14 +39,27 @@ class _GameFieldScreenState extends State<GameFieldScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_game.name),
+        title: Row(
+          children: [
+            const AppLogoIcon(size: 24),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                _game.name,
+                style: const TextStyle(color: AppTheme.primaryColor),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppTheme.backgroundColor,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.primaryColor),
           onPressed: () => context.pop(),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit),
+            icon: const Icon(Icons.edit, color: AppTheme.primaryColor),
             onPressed: () {
               context.go('/card-editor/${widget.gameId}');
             },

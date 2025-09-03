@@ -5,6 +5,7 @@ import 'package:intuition/features/game/presentation/game_field_screen.dart';
 import 'package:intuition/features/guessing/presentation/guessing_screen.dart';
 import 'package:intuition/features/card_editor/presentation/card_editor_screen.dart';
 import 'package:intuition/features/person_editor/presentation/person_editor_screen.dart';
+import 'package:intuition/features/game_creation/presentation/game_creation_screen.dart';
 
 class AppRouter {
   static const String menu = '/';
@@ -12,6 +13,7 @@ class AppRouter {
   static const String guessing = '/guessing/:sessionId';
   static const String cardEditor = '/card-editor/:gameId';
   static const String personEditor = '/person-editor/:gameId/:personId?';
+  static const String gameCreation = '/game-creation';
 
   static final GoRouter router = GoRouter(
     initialLocation: menu,
@@ -53,6 +55,11 @@ class AppRouter {
           final personId = state.pathParameters['personId'];
           return PersonEditorScreen(gameId: gameId, personId: personId);
         },
+      ),
+      GoRoute(
+        path: gameCreation,
+        name: 'gameCreation',
+        builder: (context, state) => const GameCreationScreen(),
       ),
     ],
     errorBuilder:

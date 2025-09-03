@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:go_router/go_router.dart';
 import 'package:intuition/core/theme/app_theme.dart';
+import 'package:intuition/shared/widgets/app_logo.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -11,13 +12,11 @@ class MenuScreen extends StatelessWidget {
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         backgroundColor: AppTheme.backgroundColor,
-        title: const Text(
-          'Интуиция',
-          style: TextStyle(color: AppTheme.primaryColor),
-        ),
+        title: const AppLogo(size: 32, showText: false),
+        centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.settings, color: AppTheme.primaryColor),
             onPressed: () {
               // TODO: Настройки
             },
@@ -29,7 +28,10 @@ class MenuScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
+            // Большой логотип в центре
+            const Center(child: AppLogo(size: 80, showText: true)),
+            const SizedBox(height: 24),
             Text(
               'Добро пожаловать в игру "Интуиция"!',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -65,12 +67,7 @@ class MenuScreen extends StatelessWidget {
               title: 'Создать игру',
               subtitle: 'Создайте новую игру с персонажами и фактами',
               onTap: () {
-                // TODO: Создание игры
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Создание игры будет добавлено'),
-                  ),
-                );
+                context.push('/game-creation');
               },
             ),
             const SizedBox(height: 16),
