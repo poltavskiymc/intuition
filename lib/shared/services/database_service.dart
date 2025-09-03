@@ -1,5 +1,5 @@
 import 'package:isar/isar.dart';
-import '../models/isar_models.dart';
+import 'package:intuition/shared/models/isar_models.dart';
 
 class DatabaseService {
   static late Isar _isar;

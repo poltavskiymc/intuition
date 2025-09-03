@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../shared/models/isar_models.dart';
-import '../../../shared/services/mock_database_service.dart';
+import 'package:intuition/core/theme/app_theme.dart';
+import 'package:intuition/shared/models/isar_models.dart';
+import 'package:intuition/shared/services/mock_database_service.dart';
 
 class GameFieldScreen extends StatefulWidget {
   final String gameId;
@@ -110,12 +110,12 @@ class _GameFieldScreenState extends State<GameFieldScreen> {
               colors:
                   fact.isSecret
                       ? [
-                        AppTheme.secretCardColor.withOpacity(0.1),
-                        AppTheme.secretCardColor.withOpacity(0.05),
+                        AppTheme.secretCardColor.withValues(alpha: 0.1),
+                        AppTheme.secretCardColor.withValues(alpha: 0.05),
                       ]
                       : [
-                        AppTheme.hintCardColor.withOpacity(0.1),
-                        AppTheme.hintCardColor.withOpacity(0.05),
+                        AppTheme.hintCardColor.withValues(alpha: 0.1),
+                        AppTheme.hintCardColor.withValues(alpha: 0.05),
                       ],
             ),
           ),
@@ -170,7 +170,7 @@ class _GameFieldScreenState extends State<GameFieldScreen> {
     // TODO: Создать игровую сессию и перейти к экрану угадывания
     final sessionId = 'session_${DateTime.now().millisecondsSinceEpoch}';
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder:
           (context) => AlertDialog(

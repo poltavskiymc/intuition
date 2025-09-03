@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/menu/presentation/menu_screen.dart';
-import '../../features/game/presentation/game_field_screen.dart';
-import '../../features/guessing/presentation/guessing_screen.dart';
-import '../../features/card_editor/presentation/card_editor_screen.dart';
-import '../../features/person_editor/presentation/person_editor_screen.dart';
+import 'package:intuition/features/menu/presentation/menu_screen.dart';
+import 'package:intuition/features/game/presentation/game_field_screen.dart';
+import 'package:intuition/features/guessing/presentation/guessing_screen.dart';
+import 'package:intuition/features/card_editor/presentation/card_editor_screen.dart';
+import 'package:intuition/features/person_editor/presentation/person_editor_screen.dart';
 
 class AppRouter {
   static const String menu = '/';

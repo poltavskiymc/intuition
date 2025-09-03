@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'core/theme/app_theme.dart';
-import 'core/navigation/app_router.dart';
-import 'shared/services/mock_database_service.dart';
+import 'package:intuition/core/theme/app_theme.dart';
+import 'package:intuition/core/navigation/app_router.dart';
+import 'package:intuition/shared/services/mock_database_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

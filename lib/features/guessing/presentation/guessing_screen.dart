@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/theme/app_theme.dart';
+import 'package:intuition/core/theme/app_theme.dart';
 
 class GuessingScreen extends StatefulWidget {
   final String sessionId;

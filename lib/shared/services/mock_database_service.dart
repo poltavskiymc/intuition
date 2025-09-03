@@ -1,4 +1,4 @@
-import '../models/isar_models.dart';
+import 'package:intuition/shared/models/isar_models.dart';
 
 class MockDatabaseService {
   static final List<Game> _games = [];

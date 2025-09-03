@@ -10,8 +10,11 @@ class JsonUtils {
       return [];
     }
     try {
-      final List<dynamic> decoded = jsonDecode(jsonString);
-      return decoded.cast<String>();
+      final dynamic decoded = jsonDecode(jsonString);
+      if (decoded is List) {
+        return decoded.cast<String>();
+      }
+      return [];
     } catch (e) {
       return [];
     }

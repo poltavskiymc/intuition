@@ -1,5 +1,5 @@
 import 'package:isar/isar.dart';
-import '../utils/json_utils.dart';
+import 'package:intuition/shared/utils/json_utils.dart';
 
 part 'isar_models.g.dart';
 
