@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intuition/core/theme/app_theme.dart';
 import 'package:intuition/shared/models/isar_models.dart';
-import 'package:intuition/shared/services/mock_database_service.dart';
+import 'package:intuition/shared/services/database_service.dart';
 import 'package:intuition/shared/widgets/app_logo.dart';
 
 class GameFieldScreen extends StatefulWidget {
@@ -25,14 +25,14 @@ class _GameFieldScreenState extends State<GameFieldScreen> {
     _loadGame();
   }
 
-  void _loadGame() {
-    // Загружаем игру из mock базы данных
+  void _loadGame() async {
+    // Загружаем игру из базы данных
     _game =
-        MockDatabaseService.getGameById(widget.gameId) ??
-        MockDatabaseService.getAllGames().first;
+        await DatabaseService.getGameById(widget.gameId) ??
+        (await DatabaseService.getAllGames()).first;
 
     // Загружаем все факты
-    _facts = MockDatabaseService.getAllFacts();
+    _facts = await DatabaseService.getAllFacts();
   }
 
   @override
@@ -67,145 +67,190 @@ class _GameFieldScreenState extends State<GameFieldScreen> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_game.description != null) ...[
-              Text(
-                _game.description!,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 24),
-            ],
-            Text(
-              'Выберите карточку с фактом:',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+            // Название игры по центру сверху
+            Center(
+              child: Text(
+                _game.name,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: AppTheme.primaryColor,
+                  fontWeight: FontWeight.bold,
                 ),
-                itemCount: _facts.length,
-                itemBuilder: (context, index) {
-                  final fact = _facts[index];
-                  return _buildFactCard(context, fact);
-                },
+                textAlign: TextAlign.center,
               ),
             ),
+            const SizedBox(height: 32),
+            // Карточки со стартовыми фактами
+            Expanded(child: _buildStartFactCards(context)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFactCard(BuildContext context, Fact fact) {
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: () => _onFactCardTapped(fact),
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors:
-                  fact.isSecret
-                      ? [
-                        AppTheme.secretCardColor.withValues(alpha: 0.1),
-                        AppTheme.secretCardColor.withValues(alpha: 0.05),
-                      ]
-                      : [
-                        AppTheme.hintCardColor.withValues(alpha: 0.1),
-                        AppTheme.hintCardColor.withValues(alpha: 0.05),
-                      ],
+  Widget _buildStartFactCards(BuildContext context) {
+    // Получаем стартовые факты из mock данных
+    final startFacts = _facts.where((fact) => fact.isStartFact).toList();
+
+    if (startFacts.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.help_outline,
+              size: 64,
+              color: AppTheme.accentColor.withValues(alpha: 0.5),
             ),
+            const SizedBox(height: 16),
+            Text(
+              'Нет стартовых фактов',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: AppTheme.accentColor.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Создайте игру с персонажами и стартовыми фактами',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppTheme.accentColor.withValues(alpha: 0.6),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Wrap(
+      spacing: 16,
+      runSpacing: 16,
+      children:
+          startFacts.map((fact) {
+            return _buildStartFactCard(context, fact);
+          }).toList(),
+    );
+  }
+
+  Widget _buildStartFactCard(BuildContext context, Fact fact) {
+    return Container(
+      width: 200, // Фиксированная ширина карточки
+      height: 120, // Фиксированная высота карточки
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color:
+              fact.isSecret
+                  ? AppTheme.hintCardColor.withValues(alpha: 0.8)
+                  : AppTheme.accentColor.withValues(alpha: 0.3),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color:
+                fact.isSecret
+                    ? AppTheme.hintCardColor.withValues(alpha: 0.3)
+                    : AppTheme.accentColor.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color:
-                      fact.isSecret
-                          ? AppTheme.secretCardColor
-                          : AppTheme.hintCardColor,
-                  borderRadius: BorderRadius.circular(8),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _onStartFactCardTapped(fact),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Стартовый факт (занимает больше места)
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      fact.text,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.w600,
+                        height: 1.4,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ),
-                child: Icon(
-                  fact.isSecret
-                      ? Icons.visibility_off
-                      : Icons.lightbulb_outline,
-                  color: Colors.white,
-                  size: 24,
+                const SizedBox(height: 12),
+                // Индикатор типа факта
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        fact.isSecret ? Icons.visibility_off : Icons.visibility,
+                        size: 16,
+                        color:
+                            fact.isSecret
+                                ? AppTheme.primaryColor
+                                : AppTheme.accentColor,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        fact.isSecret ? 'Секретный' : 'Известный',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color:
+                              fact.isSecret
+                                  ? AppTheme.primaryColor
+                                  : AppTheme.accentColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                fact.isSecret ? 'Секретный факт' : 'Подсказка',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color:
-                      fact.isSecret
-                          ? AppTheme.secretCardColor
-                          : AppTheme.hintCardColor,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Нажмите, чтобы открыть',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  void _onFactCardTapped(Fact fact) {
-    // TODO: Создать игровую сессию и перейти к экрану угадывания
-    final sessionId = 'session_${DateTime.now().millisecondsSinceEpoch}';
-
+  void _onStartFactCardTapped(Fact fact) {
+    // TODO: Переход к экрану с дополнительными фактами
     showDialog<void>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Начать игру?'),
-            content: Text(
-              'Вы выбрали факт: "${fact.text}"\n\nНачать угадывание?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Отмена'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  context.go('/guessing/$sessionId');
-                },
-                child: const Text('Начать'),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            fact.isSecret ? 'Секретный факт' : 'Известный факт',
+            style: const TextStyle(color: AppTheme.primaryColor),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(fact.text, style: const TextStyle(fontSize: 16)),
+              const SizedBox(height: 16),
+              Text(
+                'Этот факт поможет вам отгадать персонажа!',
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
             ],
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Понятно'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

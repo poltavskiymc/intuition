@@ -10,277 +10,214 @@ class GamePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (gameData.name.trim().isEmpty && gameData.persons.isEmpty) {
-      return const SizedBox.shrink();
+      return Container(
+        height: 200,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: AppTheme.accentColor.withValues(alpha: 0.3),
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.preview,
+                size: 48,
+                color: AppTheme.accentColor.withValues(alpha: 0.5),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Создайте игру, чтобы увидеть превью',
+                style: TextStyle(
+                  color: AppTheme.accentColor.withValues(alpha: 0.7),
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
-    return Card(
-      color: AppTheme.cardColor,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.accentColor.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(context),
-            const SizedBox(height: 16),
-            _buildPreviewContent(context),
+            // Название игры по центру сверху
+            _buildGameTitle(context),
+            const SizedBox(height: 32),
+            // Карточки со стартовыми фактами
+            _buildStartFactCards(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppTheme.hintCardColor.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Icon(
-            Icons.preview,
-            color: AppTheme.hintCardColor,
-            size: 20,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          'Превью игры',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: AppTheme.primaryColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPreviewContent(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (gameData.name.trim().isNotEmpty) ...[
-          _buildGameTitle(context),
-          const SizedBox(height: 16),
-        ],
-        if (gameData.persons.isNotEmpty) ...[
-          _buildPersonsPreview(context),
-          const SizedBox(height: 16),
-        ],
-        if (gameData.selectedStartFactIndex >= 0) ...[
-          _buildStartFactPreview(context),
-        ],
-      ],
-    );
-  }
-
   Widget _buildGameTitle(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppTheme.primaryColor,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryColor.withValues(alpha: 0.3),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.games, color: Colors.white, size: 20),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              gameData.name,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPersonsPreview(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Персонажи (${gameData.persons.length})',
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: AppTheme.primaryColor,
-          ),
+    return Center(
+      child: Text(
+        gameData.name,
+        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+          color: AppTheme.primaryColor,
+          fontWeight: FontWeight.bold,
         ),
-        const SizedBox(height: 8),
-        ...gameData.persons.asMap().entries.map((entry) {
-          final index = entry.key;
-          final person = entry.value;
-          return _buildPersonPreview(context, index, person);
-        }),
-      ],
-    );
-  }
-
-  Widget _buildPersonPreview(
-    BuildContext context,
-    int index,
-    PersonData person,
-  ) {
-    final factCount = person.facts.length;
-    final secretCount = person.facts.where((f) => f.isSecret).length;
-    final publicCount = factCount - secretCount;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppTheme.backgroundColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.accentColor.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: AppTheme.accentColor.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Center(
-              child: Text(
-                '${index + 1}',
-                style: const TextStyle(
-                  color: AppTheme.accentColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  person.name.isNotEmpty
-                      ? person.name
-                      : 'Персонаж ${index + 1}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                if (factCount > 0) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      if (publicCount > 0) ...[
-                        Icon(
-                          Icons.info_outline,
-                          size: 12,
-                          color: AppTheme.hintCardColor,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '$publicCount',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.hintCardColor,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                      if (secretCount > 0) ...[
-                        Icon(
-                          Icons.lock,
-                          size: 12,
-                          color: AppTheme.secretCardColor,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '$secretCount',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.secretCardColor,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
+        textAlign: TextAlign.center,
       ),
     );
   }
 
-  Widget _buildStartFactPreview(BuildContext context) {
-    final startFact = _getStartFact();
-    if (startFact == null) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppTheme.hintCardColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: AppTheme.hintCardColor.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.play_circle_outline,
-            color: AppTheme.hintCardColor,
-            size: 20,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Стартовый факт',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.hintCardColor,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  startFact.text,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  FactData? _getStartFact() {
-    int currentIndex = 0;
-    for (final person in gameData.persons) {
-      for (final fact in person.facts) {
-        if (currentIndex == gameData.selectedStartFactIndex) {
-          return fact;
+  Widget _buildStartFactCards(BuildContext context) {
+    // Собираем все стартовые факты
+    final startFacts = <MapEntry<int, FactData>>[];
+    for (
+      int personIndex = 0;
+      personIndex < gameData.persons.length;
+      personIndex++
+    ) {
+      final person = gameData.persons[personIndex];
+      for (int factIndex = 0; factIndex < person.facts.length; factIndex++) {
+        final fact = person.facts[factIndex];
+        if (fact.isStartFact) {
+          startFacts.add(MapEntry(personIndex, fact));
+          break; // У каждого персонажа только один стартовый факт
         }
-        currentIndex++;
       }
     }
-    return null;
+
+    if (startFacts.isEmpty) {
+      return Container(
+        height: 120,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: AppTheme.accentColor.withValues(alpha: 0.3),
+            style: BorderStyle.solid,
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: Text(
+            'Выберите стартовые факты для персонажей',
+            style: TextStyle(
+              color: AppTheme.accentColor.withValues(alpha: 0.7),
+              fontSize: 16,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Wrap(
+      spacing: 16,
+      runSpacing: 16,
+      children:
+          startFacts.map((entry) {
+            final personIndex = entry.key;
+            final fact = entry.value;
+            final person = gameData.persons[personIndex];
+
+            return _buildStartFactCard(context, person.name, fact);
+          }).toList(),
+    );
+  }
+
+  Widget _buildStartFactCard(
+    BuildContext context,
+    String personName,
+    FactData fact,
+  ) {
+    return Container(
+      width: 200, // Фиксированная ширина карточки
+      height: 120, // Фиксированная высота карточки
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor, // Всегда белый фон для читаемости
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color:
+              fact.isSecret
+                  ? AppTheme.hintCardColor.withValues(alpha: 0.8)
+                  : AppTheme.accentColor.withValues(alpha: 0.3),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color:
+                fact.isSecret
+                    ? AppTheme.hintCardColor.withValues(alpha: 0.3)
+                    : AppTheme.accentColor.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Стартовый факт (занимает больше места)
+            Expanded(
+              child: Center(
+                child: Text(
+                  fact.text.isEmpty ? 'Факт не указан' : fact.text,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color:
+                        AppTheme
+                            .primaryColor, // Темный цвет для лучшей видимости
+                    fontWeight: FontWeight.w600,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 4, // Больше строк для факта
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Индикатор типа факта
+            Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    fact.isSecret ? Icons.visibility_off : Icons.visibility,
+                    size: 16,
+                    color:
+                        fact.isSecret
+                            ? AppTheme
+                                .primaryColor // Темный цвет для лучшей видимости
+                            : AppTheme.accentColor,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    fact.isSecret ? 'Секретный' : 'Известный',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color:
+                          fact.isSecret
+                              ? AppTheme
+                                  .primaryColor // Темный цвет для лучшей видимости
+                              : AppTheme.accentColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

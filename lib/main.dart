@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intuition/core/theme/app_theme.dart';
 import 'package:intuition/core/navigation/app_router.dart';
-import 'package:intuition/shared/services/mock_database_service.dart';
+import 'package:intuition/shared/services/database_service.dart';
 import 'package:intuition/shared/providers/splash_provider.dart';
 import 'package:intuition/shared/widgets/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Инициализация mock базы данных (без CocoaPods)
-  await MockDatabaseService.initialize();
+  // Инициализация базы данных
+  await DatabaseService.initialize();
 
   runApp(const ProviderScope(child: IntuitionApp()));
 }

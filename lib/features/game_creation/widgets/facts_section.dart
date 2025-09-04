@@ -32,7 +32,7 @@ class FactsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildHeader(context),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         _buildContent(context),
       ],
     );

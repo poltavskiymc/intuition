@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intuition/core/navigation/app_router.dart';
 import 'package:intuition/core/theme/app_theme.dart';
 import 'package:intuition/shared/widgets/app_logo.dart';
 
@@ -53,17 +54,6 @@ class MenuScreen extends StatelessWidget {
                 const SizedBox(height: 48),
                 _buildMenuCard(
                   context,
-                  icon: Icons.play_circle_outline,
-                  title: 'Играть',
-                  subtitle: 'Выберите игру и начните угадывать',
-                  onTap: () {
-                    // TODO: Список игр
-                    context.push('/gameField');
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildMenuCard(
-                  context,
                   icon: Icons.add_circle_outline,
                   title: 'Создать игру',
                   subtitle: 'Создайте новую игру с персонажами и фактами',
@@ -74,16 +64,11 @@ class MenuScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 _buildMenuCard(
                   context,
-                  icon: Icons.edit_outlined,
-                  title: 'Редактировать',
-                  subtitle: 'Редактируйте существующие игры',
+                  icon: Icons.play_circle_outline,
+                  title: 'Выбрать игру',
+                  subtitle: 'Выберите игру и начните угадывать',
                   onTap: () {
-                    // TODO: Редактирование игр
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Редактирование будет добавлено'),
-                      ),
-                    );
+                    context.push(AppRouter.gameSelection);
                   },
                 ),
                 const Spacer(),

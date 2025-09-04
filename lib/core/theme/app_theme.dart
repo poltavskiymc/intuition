@@ -20,6 +20,12 @@ class AppTheme {
   static const Color secretCardColor = softCoral; // Секретные факты
   static const Color hintCardColor = mintGreen; // Подсказки
 
+  // Цвета для чередующихся обводок карточек персонажей
+  static Color get personCardColor1 =>
+      lightPeach.withValues(alpha: 0.8); // Светло-терракотовый
+  static Color get personCardColor2 =>
+      lavenderBlue.withValues(alpha: 0.8); // Лавандовый
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,

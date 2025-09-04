@@ -90,6 +90,7 @@ class Fact {
   late bool isSecret; // true for secret, false for hint
   late String personId;
   late bool isRevealed;
+  late bool isStartFact; // true if this is the starting fact for the person
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -98,6 +99,7 @@ class Fact {
     required this.isSecret,
     required this.personId,
     required this.isRevealed,
+    this.isStartFact = false,
     this.createdAt,
     this.updatedAt,
   });
@@ -107,6 +109,7 @@ class Fact {
     bool? isSecret,
     String? personId,
     bool? isRevealed,
+    bool? isStartFact,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -115,6 +118,7 @@ class Fact {
       isSecret: isSecret ?? this.isSecret,
       personId: personId ?? this.personId,
       isRevealed: isRevealed ?? this.isRevealed,
+      isStartFact: isStartFact ?? this.isStartFact,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

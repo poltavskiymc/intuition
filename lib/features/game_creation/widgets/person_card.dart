@@ -33,21 +33,25 @@ class PersonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Определяем цвет обводки в зависимости от индекса
+    final borderColor =
+        index % 2 == 0 ? AppTheme.personCardColor1 : AppTheme.personCardColor2;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppTheme.backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.accentColor.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(context),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           _buildNameField(context),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           FactsSection(
             personIndex: index,
             person: person,

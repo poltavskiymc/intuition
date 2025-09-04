@@ -1,10 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:intuition/features/game_creation/models/game_creation_models.dart';
 import 'package:intuition/features/game_creation/widgets/save_game_button.dart';
+import 'package:intuition/features/game_selection/providers/games_provider.dart';
+import 'package:intuition/shared/models/isar_models.dart';
+import 'package:intuition/shared/services/database_service.dart';
+import 'package:intuition/shared/utils/json_utils.dart';
 
 part 'game_creation_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class GameCreation extends _$GameCreation {
   @override
   GameCreationData build() {
@@ -20,6 +25,11 @@ class GameCreation extends _$GameCreation {
   /// Обновить название игры
   void updateGameName(String name) {
     state = state.copyWith(name: name);
+  }
+
+  /// Обновить описание игры
+  void updateGameDescription(String description) {
+    state = state.copyWith(description: description);
   }
 
   /// Добавить персонажа
@@ -170,5 +180,142 @@ class GameCreation extends _$GameCreation {
   void resetSaveState() {
     _saveState = SaveButtonState.ready;
     _errorMessage = null;
+  }
+
+  /// Сохранить игру в базу данных
+  Future<void> saveGame() async {
+    // Обновляем название и описание игры из контроллеров
+    updateGameName(state.nameController.text);
+    updateGameDescription(state.descriptionController.text);
+
+    // Очищаем пустые факты перед валидацией
+    cleanEmptyFacts();
+
+    final errors = validate();
+
+    if (errors.isNotEmpty) {
+      saveError(errors.first);
+      return;
+    }
+
+    // Начинаем сохранение
+    startSaving();
+
+    try {
+      // Сохраняем в базу данных
+      final savedGame = await DatabaseService.saveGame(state);
+
+      // Уведомляем провайдер игр о новой игре
+      ref.read(gamesProvider.notifier).addGame(savedGame);
+
+      // Успешное сохранение
+      saveSuccess();
+    } catch (e) {
+      // Ошибка сохранения
+      saveError('Ошибка сохранения: ${e.toString()}');
+    }
+  }
+
+  /// Обновить игру в базе данных
+  Future<void> updateGame(String gameId) async {
+    // Обновляем название и описание игры из контроллеров
+    updateGameName(state.nameController.text);
+    updateGameDescription(state.descriptionController.text);
+
+    // Очищаем пустые факты перед валидацией
+    cleanEmptyFacts();
+
+    final errors = validate();
+
+    if (errors.isNotEmpty) {
+      saveError(errors.first);
+      return;
+    }
+
+    // Начинаем сохранение
+    startSaving();
+
+    try {
+      // Обновляем в базе данных
+      final updatedGame = await DatabaseService.updateGame(gameId, state);
+
+      // Уведомляем провайдер игр об обновленной игре
+      ref.read(gamesProvider.notifier).updateGame(updatedGame);
+
+      // Успешное сохранение
+      saveSuccess();
+    } catch (e) {
+      // Ошибка сохранения
+      saveError('Ошибка сохранения: ${e.toString()}');
+    }
+  }
+
+  /// Очистить пустые факты у всех персонажей
+  void cleanEmptyFacts() {
+    final cleanedPersons =
+        state.persons.map((person) {
+          final cleanedFacts =
+              person.facts
+                  .where((fact) => fact.text.trim().isNotEmpty)
+                  .toList();
+          return person.copyWith(facts: cleanedFacts);
+        }).toList();
+
+    state = state.copyWith(persons: cleanedPersons);
+  }
+
+  /// Загрузить игру для редактирования
+  Future<void> loadGameForEdit(Game game) async {
+    try {
+      // Получаем всех персонажей игры
+      final personIds = JsonUtils.stringToList(game.personIds);
+      final persons = <PersonData>[];
+
+      for (final personId in personIds) {
+        final person = await DatabaseService.getPersonById(personId);
+        if (person != null) {
+          // Получаем все факты персонажа
+          final factIds = JsonUtils.stringToList(person.factIds);
+          final facts = <FactData>[];
+
+          for (final factId in factIds) {
+            final fact = await DatabaseService.getFactById(factId);
+            if (fact != null) {
+              final factData = FactData();
+              factData.text = fact.text;
+              factData.isSecret = fact.isSecret;
+              factData.isStartFact = fact.isStartFact;
+              facts.add(factData);
+            }
+          }
+
+          final personData = PersonData();
+          personData.name = person.name;
+          personData.facts.addAll(facts);
+          persons.add(personData);
+        }
+      }
+
+      // Создаем контроллеры для названия и описания игры
+      final nameController = TextEditingController(text: game.name);
+      final descriptionController = TextEditingController(
+        text: game.description ?? '',
+      );
+
+      // Обновляем состояние
+      state = GameCreationData.create(
+        name: game.name,
+        description: game.description ?? '',
+        nameController: nameController,
+        descriptionController: descriptionController,
+        persons: persons,
+      );
+
+      // Сбрасываем состояние сохранения
+      _saveState = SaveButtonState.ready;
+      _errorMessage = null;
+    } catch (e) {
+      throw Exception('Ошибка загрузки игры: ${e.toString()}');
+    }
   }
 }

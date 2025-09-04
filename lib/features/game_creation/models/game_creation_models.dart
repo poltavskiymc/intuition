@@ -57,16 +57,46 @@ class FactData {
 
 class GameCreationData {
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
   final List<PersonData> persons = [];
   int selectedStartFactIndex = -1;
 
   String get name => nameController.text;
+  String get description => descriptionController.text;
 
   GameCreationData();
+
+  GameCreationData.create({
+    String? name,
+    String? description,
+    TextEditingController? nameController,
+    TextEditingController? descriptionController,
+    List<PersonData>? persons,
+    int? selectedStartFactIndex,
+  }) {
+    if (nameController != null) {
+      this.nameController.text = nameController.text;
+    } else if (name != null) {
+      this.nameController.text = name;
+    }
+
+    if (descriptionController != null) {
+      this.descriptionController.text = descriptionController.text;
+    } else if (description != null) {
+      this.descriptionController.text = description;
+    }
+
+    if (persons != null) {
+      this.persons.addAll(persons);
+    }
+
+    this.selectedStartFactIndex = selectedStartFactIndex ?? -1;
+  }
 
   GameCreationData.fromJson(Map<String, dynamic> json)
     : selectedStartFactIndex = json['selectedStartFactIndex'] as int? ?? -1 {
     nameController.text = json['name'] as String? ?? '';
+    descriptionController.text = json['description'] as String? ?? '';
     if (json['persons'] != null) {
       persons.addAll(
         (json['persons'] as List).map(
@@ -78,6 +108,7 @@ class GameCreationData {
 
   Map<String, dynamic> toJson() => {
     'name': name,
+    'description': description,
     'persons': persons.map((p) => p.toJson()).toList(),
     'selectedStartFactIndex': selectedStartFactIndex,
   };
@@ -154,11 +185,13 @@ class GameCreationData {
 
   GameCreationData copyWith({
     String? name,
+    String? description,
     List<PersonData>? persons,
     int? selectedStartFactIndex,
   }) {
     final newData = GameCreationData();
     newData.nameController.text = name ?? this.name;
+    newData.descriptionController.text = description ?? this.description;
     newData.persons.addAll(persons ?? this.persons);
     newData.selectedStartFactIndex =
         selectedStartFactIndex ?? this.selectedStartFactIndex;

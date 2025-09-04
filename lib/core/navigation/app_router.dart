@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intuition/features/game_creation/presentation/game_creation_screen.dart';
 import 'package:intuition/features/menu/presentation/menu_screen.dart';
+import 'package:intuition/features/game_selection/presentation/game_selection_screen.dart';
 import 'package:intuition/features/game/presentation/game_field_screen.dart';
 import 'package:intuition/features/guessing/presentation/guessing_screen.dart';
 import 'package:intuition/features/card_editor/presentation/card_editor_screen.dart';
@@ -9,11 +10,13 @@ import 'package:intuition/features/person_editor/presentation/person_editor_scre
 
 class AppRouter {
   static const String menu = '/';
+  static const String gameSelection = '/game-selection';
   static const String gameField = '/game/:gameId';
   static const String guessing = '/guessing/:sessionId';
   static const String cardEditor = '/card-editor/:gameId';
   static const String personEditor = '/person-editor/:gameId/:personId?';
   static const String gameCreation = '/game-creation';
+  static const String gameEdit = '/game-edit/:gameId';
 
   static final GoRouter router = GoRouter(
     initialLocation: menu,
@@ -22,6 +25,11 @@ class AppRouter {
         path: menu,
         name: 'menu',
         builder: (context, state) => const MenuScreen(),
+      ),
+      GoRoute(
+        path: gameSelection,
+        name: 'gameSelection',
+        builder: (context, state) => const GameSelectionScreen(),
       ),
       GoRoute(
         path: gameField,
@@ -60,6 +68,14 @@ class AppRouter {
         path: gameCreation,
         name: 'gameCreation',
         builder: (context, state) => const GameCreationScreen(),
+      ),
+      GoRoute(
+        path: gameEdit,
+        name: 'gameEdit',
+        builder: (context, state) {
+          final gameId = state.pathParameters['gameId']!;
+          return GameCreationScreen(gameId: gameId);
+        },
       ),
     ],
     errorBuilder:

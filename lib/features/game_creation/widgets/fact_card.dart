@@ -27,8 +27,8 @@ class FactCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color:
             fact.isSecret
@@ -45,7 +45,7 @@ class FactCard extends StatelessWidget {
       child: Column(
         children: [
           _buildTextField(context),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           _buildControls(context),
         ],
       ),
@@ -54,6 +54,7 @@ class FactCard extends StatelessWidget {
 
   Widget _buildTextField(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: FactTextField(
@@ -70,7 +71,12 @@ class FactCard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        DeleteButton(onPressed: onRemove, tooltip: 'Удалить факт'),
+        Padding(
+          padding: const EdgeInsets.only(
+            top: 8,
+          ), // Поднимаем кнопку к верхней границе поля
+          child: DeleteButton(onPressed: onRemove, tooltip: 'Удалить факт'),
+        ),
       ],
     );
   }

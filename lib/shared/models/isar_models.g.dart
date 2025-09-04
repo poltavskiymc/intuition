@@ -2354,18 +2354,23 @@ const FactSchema = CollectionSchema(
       name: r'isSecret',
       type: IsarType.bool,
     ),
-    r'personId': PropertySchema(
+    r'isStartFact': PropertySchema(
       id: 3,
+      name: r'isStartFact',
+      type: IsarType.bool,
+    ),
+    r'personId': PropertySchema(
+      id: 4,
       name: r'personId',
       type: IsarType.string,
     ),
     r'text': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'text',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'updatedAt',
       type: IsarType.dateTime,
     )
@@ -2404,9 +2409,10 @@ void _factSerialize(
   writer.writeDateTime(offsets[0], object.createdAt);
   writer.writeBool(offsets[1], object.isRevealed);
   writer.writeBool(offsets[2], object.isSecret);
-  writer.writeString(offsets[3], object.personId);
-  writer.writeString(offsets[4], object.text);
-  writer.writeDateTime(offsets[5], object.updatedAt);
+  writer.writeBool(offsets[3], object.isStartFact);
+  writer.writeString(offsets[4], object.personId);
+  writer.writeString(offsets[5], object.text);
+  writer.writeDateTime(offsets[6], object.updatedAt);
 }
 
 Fact _factDeserialize(
@@ -2419,9 +2425,10 @@ Fact _factDeserialize(
     createdAt: reader.readDateTimeOrNull(offsets[0]),
     isRevealed: reader.readBool(offsets[1]),
     isSecret: reader.readBool(offsets[2]),
-    personId: reader.readString(offsets[3]),
-    text: reader.readString(offsets[4]),
-    updatedAt: reader.readDateTimeOrNull(offsets[5]),
+    isStartFact: reader.readBoolOrNull(offsets[3]) ?? false,
+    personId: reader.readString(offsets[4]),
+    text: reader.readString(offsets[5]),
+    updatedAt: reader.readDateTimeOrNull(offsets[6]),
   );
   object.id = id;
   return object;
@@ -2441,10 +2448,12 @@ P _factDeserializeProp<P>(
     case 2:
       return (reader.readBool(offset)) as P;
     case 3:
-      return (reader.readString(offset)) as P;
+      return (reader.readBoolOrNull(offset) ?? false) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
       return (reader.readDateTimeOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -2674,6 +2683,16 @@ extension FactQueryFilter on QueryBuilder<Fact, Fact, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isSecret',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Fact, Fact, QAfterFilterCondition> isStartFactEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isStartFact',
         value: value,
       ));
     });
@@ -3047,6 +3066,18 @@ extension FactQuerySortBy on QueryBuilder<Fact, Fact, QSortBy> {
     });
   }
 
+  QueryBuilder<Fact, Fact, QAfterSortBy> sortByIsStartFact() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isStartFact', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Fact, Fact, QAfterSortBy> sortByIsStartFactDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isStartFact', Sort.desc);
+    });
+  }
+
   QueryBuilder<Fact, Fact, QAfterSortBy> sortByPersonId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'personId', Sort.asc);
@@ -3133,6 +3164,18 @@ extension FactQuerySortThenBy on QueryBuilder<Fact, Fact, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Fact, Fact, QAfterSortBy> thenByIsStartFact() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isStartFact', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Fact, Fact, QAfterSortBy> thenByIsStartFactDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isStartFact', Sort.desc);
+    });
+  }
+
   QueryBuilder<Fact, Fact, QAfterSortBy> thenByPersonId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'personId', Sort.asc);
@@ -3189,6 +3232,12 @@ extension FactQueryWhereDistinct on QueryBuilder<Fact, Fact, QDistinct> {
     });
   }
 
+  QueryBuilder<Fact, Fact, QDistinct> distinctByIsStartFact() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isStartFact');
+    });
+  }
+
   QueryBuilder<Fact, Fact, QDistinct> distinctByPersonId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -3232,6 +3281,12 @@ extension FactQueryProperty on QueryBuilder<Fact, Fact, QQueryProperty> {
   QueryBuilder<Fact, bool, QQueryOperations> isSecretProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSecret');
+    });
+  }
+
+  QueryBuilder<Fact, bool, QQueryOperations> isStartFactProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isStartFact');
     });
   }
 
