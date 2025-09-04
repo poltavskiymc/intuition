@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:intuition/features/game_creation/models/game_creation_models.dart';
+import 'package:intuition/features/game_creation/widgets/save_game_button.dart';
 
 part 'game_creation_provider.g.dart';
 
@@ -9,6 +10,12 @@ class GameCreation extends _$GameCreation {
   GameCreationData build() {
     return GameCreationData();
   }
+
+  SaveButtonState _saveState = SaveButtonState.ready;
+  String? _errorMessage;
+
+  SaveButtonState get saveState => _saveState;
+  String? get errorMessage => _errorMessage;
 
   /// Обновить название игры
   void updateGameName(String name) {
@@ -86,9 +93,23 @@ class GameCreation extends _$GameCreation {
     }
   }
 
-  /// Установить стартовый факт
-  void setStartFact(int globalIndex) {
-    state = state.copyWith(selectedStartFactIndex: globalIndex);
+  /// Установить стартовый факт для персонажа
+  void setPersonStartFact(int personIndex, int factIndex) {
+    final persons = List<PersonData>.from(state.persons);
+    if (personIndex < persons.length &&
+        factIndex < persons[personIndex].facts.length) {
+      // Сначала сбрасываем все стартовые факты у этого персонажа
+      final facts =
+          persons[personIndex].facts
+              .map((fact) => fact.copyWith(isStartFact: false))
+              .toList();
+
+      // Устанавливаем выбранный факт как стартовый
+      facts[factIndex] = facts[factIndex].copyWith(isStartFact: true);
+
+      persons[personIndex] = persons[personIndex].copyWith(facts: facts);
+      state = state.copyWith(persons: persons);
+    }
   }
 
   /// Получить глобальный индекс факта
@@ -123,5 +144,31 @@ class GameCreation extends _$GameCreation {
   /// Сбросить состояние
   void reset() {
     state = GameCreationData();
+    _saveState = SaveButtonState.ready;
+    _errorMessage = null;
+  }
+
+  /// Начать сохранение
+  void startSaving() {
+    _saveState = SaveButtonState.saving;
+    _errorMessage = null;
+  }
+
+  /// Успешное сохранение
+  void saveSuccess() {
+    _saveState = SaveButtonState.success;
+    _errorMessage = null;
+  }
+
+  /// Ошибка сохранения
+  void saveError(String error) {
+    _saveState = SaveButtonState.error;
+    _errorMessage = error;
+  }
+
+  /// Сбросить состояние кнопки
+  void resetSaveState() {
+    _saveState = SaveButtonState.ready;
+    _errorMessage = null;
   }
 }

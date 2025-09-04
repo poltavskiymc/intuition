@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intuition/core/theme/app_theme.dart';
+import 'package:intuition/shared/widgets/custom_text_field.dart';
 
 class GameNameSection extends StatelessWidget {
   final TextEditingController controller;
-  final void Function(String)? onChanged;
 
-  const GameNameSection({super.key, required this.controller, this.onChanged});
+  const GameNameSection({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -31,15 +31,17 @@ class GameNameSection extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppTheme.primaryColor, width: 1),
-          ),
-          child: const Icon(
-            Icons.title,
             color: AppTheme.primaryColor,
-            size: 20,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
+          child: const Icon(Icons.title, color: Colors.white, size: 20),
         ),
         const SizedBox(width: 12),
         Text(
@@ -54,13 +56,8 @@ class GameNameSection extends StatelessWidget {
   }
 
   Widget _buildTextField() {
-    return TextFormField(
+    return GameNameTextField(
       controller: controller,
-      decoration: const InputDecoration(
-        hintText: 'Введите название игры',
-        prefixIcon: Icon(Icons.games, color: AppTheme.primaryColor),
-      ),
-      onChanged: onChanged,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return 'Введите название игры';

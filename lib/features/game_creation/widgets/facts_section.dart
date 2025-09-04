@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intuition/core/theme/app_theme.dart';
 import 'package:intuition/features/game_creation/models/game_creation_models.dart';
 import 'package:intuition/features/game_creation/widgets/fact_card.dart';
+import 'package:intuition/shared/widgets/custom_button.dart';
 
 class FactsSection extends StatelessWidget {
   final int personIndex;
@@ -12,7 +13,6 @@ class FactsSection extends StatelessWidget {
   final void Function(int) onRemoveFact;
   final void Function(int, String) onFactTextChanged;
   final void Function(int, bool) onFactTypeChanged;
-  final int Function(int) getFactGlobalIndex;
 
   const FactsSection({
     super.key,
@@ -24,7 +24,6 @@ class FactsSection extends StatelessWidget {
     required this.onRemoveFact,
     required this.onFactTextChanged,
     required this.onFactTypeChanged,
-    required this.getFactGlobalIndex,
   });
 
   @override
@@ -50,12 +49,7 @@ class FactsSection extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        TextButton.icon(
-          onPressed: onAddFact,
-          icon: const Icon(Icons.add, size: 16),
-          label: const Text('Добавить факт'),
-          style: TextButton.styleFrom(foregroundColor: AppTheme.accentColor),
-        ),
+        AddFactButton(onPressed: onAddFact),
       ],
     );
   }
@@ -80,7 +74,6 @@ class FactsSection extends StatelessWidget {
             onFactTextChanged: (text) => onFactTextChanged(factIndex, text),
             onFactTypeChanged:
                 (isSecret) => onFactTypeChanged(factIndex, isSecret),
-            getFactGlobalIndex: () => getFactGlobalIndex(factIndex),
           );
         }),
       ],

@@ -1,31 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intuition/core/theme/app_theme.dart';
-import 'package:intuition/features/game_creation/models/game_creation_models.dart';
+import 'package:intuition/features/game_creation/providers/game_creation_provider.dart';
 import 'package:intuition/features/game_creation/widgets/game_name_section.dart';
-import 'package:intuition/features/game_creation/widgets/persons_section_legacy.dart';
+import 'package:intuition/features/game_creation/widgets/persons_section.dart';
 import 'package:intuition/features/game_creation/widgets/start_fact_section.dart';
+import 'package:intuition/features/game_creation/widgets/game_creation_progress.dart';
+import 'package:intuition/features/game_creation/widgets/game_preview.dart';
+import 'package:intuition/features/game_creation/widgets/save_game_button.dart';
 import 'package:intuition/shared/widgets/app_logo.dart';
 
-class GameCreationScreen extends StatefulWidget {
+class GameCreationScreen extends ConsumerWidget {
   const GameCreationScreen({super.key});
 
   @override
-  State<GameCreationScreen> createState() => _GameCreationScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final gameData = ref.watch(gameCreationProvider);
+    final gameCreationNotifier = ref.read(gameCreationProvider.notifier);
 
-class _GameCreationScreenState extends State<GameCreationScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _gameData = GameCreationData();
-
-  @override
-  void dispose() {
-    _gameData.nameController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
@@ -38,7 +31,7 @@ class _GameCreationScreenState extends State<GameCreationScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: _saveGame,
+            onPressed: () => _saveGame(context, ref),
             child: const Text(
               'Сохранить',
               style: TextStyle(color: AppTheme.primaryColor),
@@ -47,25 +40,63 @@ class _GameCreationScreenState extends State<GameCreationScreen> {
         ],
       ),
       body: Form(
-        key: _formKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              GameNameSection(controller: _gameData.nameController),
-              const SizedBox(height: 24),
-              PersonsSectionLegacy(
-                persons: _gameData.persons,
-                onAddPerson: _addPerson,
-                onRemovePerson: _removePerson,
-                selectedStartFactIndex: _gameData.selectedStartFactIndex,
-                onStartFactChanged: _onStartFactChanged,
+              // Индикатор прогресса
+              GameCreationProgress(gameData: gameData),
+              const SizedBox(height: 16),
+
+              // Название игры
+              GameNameSection(controller: gameData.nameController),
+              const SizedBox(height: 16),
+
+              // Персонажи
+              PersonsSection(
+                persons: gameData.persons,
+                onAddPerson: () => gameCreationNotifier.addPerson(),
+                onRemovePerson:
+                    (index) => gameCreationNotifier.removePerson(index),
+                getSelectedStartFactIndex: (personIndex) {
+                  final person = gameData.persons[personIndex];
+                  return person.facts.indexWhere((fact) => fact.isStartFact);
+                },
+                onStartFactChanged:
+                    (personIndex, factIndex) => gameCreationNotifier
+                        .setPersonStartFact(personIndex, factIndex),
+                onPersonNameChanged:
+                    (personIndex, name) => gameCreationNotifier
+                        .updatePersonName(personIndex, name),
+                onAddFact:
+                    (personIndex) => gameCreationNotifier.addFact(personIndex),
+                onRemoveFact:
+                    (personIndex, factIndex) =>
+                        gameCreationNotifier.removeFact(personIndex, factIndex),
+                onFactTextChanged:
+                    (personIndex, factIndex, text) => gameCreationNotifier
+                        .updateFactText(personIndex, factIndex, text),
+                onFactTypeChanged:
+                    (personIndex, factIndex, isSecret) => gameCreationNotifier
+                        .updateFactType(personIndex, factIndex, isSecret),
               ),
+              const SizedBox(height: 16),
+
+              // Стартовый факт
+              StartFactSection(gameData: gameData),
+              const SizedBox(height: 16),
+
+              // Превью игры
+              GamePreview(gameData: gameData),
               const SizedBox(height: 24),
-              StartFactSection(gameData: _gameData),
-              const SizedBox(height: 32),
-              _buildSaveButton(),
+
+              // Кнопка сохранения
+              SaveGameButton(
+                state: gameCreationNotifier.saveState,
+                errorMessage: gameCreationNotifier.errorMessage,
+                onPressed: () => _saveGame(context, ref),
+              ),
             ],
           ),
         ),
@@ -73,63 +104,58 @@ class _GameCreationScreenState extends State<GameCreationScreen> {
     );
   }
 
-  void _addPerson() {
-    setState(() {
-      _gameData.persons.add(PersonData());
-    });
-  }
+  void _saveGame(BuildContext context, WidgetRef ref) async {
+    final gameCreationNotifier = ref.read(gameCreationProvider.notifier);
+    final gameData = ref.read(gameCreationProvider);
 
-  void _removePerson(int index) {
-    setState(() {
-      _gameData.persons.removeAt(index);
-      _gameData.updateStartFactIndex();
-    });
-  }
+    // Обновляем название игры из контроллера
+    gameCreationNotifier.updateGameName(gameData.nameController.text);
 
-  void _onStartFactChanged(int index) {
-    setState(() {
-      _gameData.selectedStartFactIndex = index;
-    });
-  }
+    final errors = gameCreationNotifier.validate();
 
-  Widget _buildSaveButton() {
-    return ElevatedButton(
-      onPressed: _saveGame,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      child: const Text(
-        'Создать игру',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-
-  void _saveGame() {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    final errors = _gameData.validate();
     if (errors.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errors.first), backgroundColor: Colors.red),
-      );
+      gameCreationNotifier.saveError(errors.first);
       return;
     }
 
-    // TODO: Сохранить игру в базу данных
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Игра успешно создана!'),
-        backgroundColor: Colors.green,
-      ),
-    );
+    // Начинаем сохранение
+    gameCreationNotifier.startSaving();
 
-    // Возвращаемся на главный экран
-    context.pop();
+    try {
+      // Имитируем сохранение в базу данных
+      await Future<void>.delayed(const Duration(seconds: 2));
+
+      // TODO: Реальное сохранение в базу данных
+      // await DatabaseService.saveGame(gameData);
+
+      // Успешное сохранение
+      gameCreationNotifier.saveSuccess();
+
+      // Показываем уведомление
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Игра успешно создана!'),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+
+      // Возвращаемся на главный экран через 1.5 секунды
+      await Future<void>.delayed(const Duration(milliseconds: 1500));
+      if (context.mounted) {
+        context.pop();
+      }
+    } catch (e) {
+      // Ошибка сохранения
+      gameCreationNotifier.saveError('Ошибка сохранения: ${e.toString()}');
+    }
   }
 }

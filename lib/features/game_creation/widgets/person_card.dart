@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intuition/core/theme/app_theme.dart';
 import 'package:intuition/features/game_creation/models/game_creation_models.dart';
 import 'package:intuition/features/game_creation/widgets/facts_section.dart';
+import 'package:intuition/shared/widgets/custom_text_field.dart';
+import 'package:intuition/shared/widgets/custom_button.dart';
 
 class PersonCard extends StatelessWidget {
   final int index;
@@ -14,7 +16,6 @@ class PersonCard extends StatelessWidget {
   final void Function(int) onRemoveFact;
   final void Function(int, String) onFactTextChanged;
   final void Function(int, bool) onFactTypeChanged;
-  final int Function(int) getFactGlobalIndex;
 
   const PersonCard({
     super.key,
@@ -28,7 +29,6 @@ class PersonCard extends StatelessWidget {
     required this.onRemoveFact,
     required this.onFactTextChanged,
     required this.onFactTypeChanged,
-    required this.getFactGlobalIndex,
   });
 
   @override
@@ -57,7 +57,6 @@ class PersonCard extends StatelessWidget {
             onRemoveFact: onRemoveFact,
             onFactTextChanged: onFactTextChanged,
             onFactTypeChanged: onFactTypeChanged,
-            getFactGlobalIndex: getFactGlobalIndex,
           ),
         ],
       ),
@@ -75,24 +74,16 @@ class PersonCard extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        IconButton(
-          onPressed: onRemove,
-          icon: const Icon(Icons.delete_outline, color: Colors.red),
-          iconSize: 20,
-        ),
+        DeleteButton(onPressed: onRemove, tooltip: 'Удалить персонажа'),
       ],
     );
   }
 
   Widget _buildNameField(BuildContext context) {
-    return TextFormField(
+    return PersonNameTextField(
       initialValue: person.name,
-      decoration: const InputDecoration(
-        labelText: 'ФИО персонажа',
-        hintText: 'Например: Иван Петров',
-        prefixIcon: Icon(Icons.person, color: AppTheme.primaryColor),
-      ),
       onChanged: onPersonNameChanged,
+      personIndex: index,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return 'Введите ФИО персонажа';

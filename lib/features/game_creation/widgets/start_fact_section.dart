@@ -19,9 +19,9 @@ class StartFactSection extends StatelessWidget {
             _buildHeader(context),
             const SizedBox(height: 12),
             _buildDescription(context),
-            if (gameData.selectedStartFactIndex >= 0) ...[
+            if (_hasSelectedStartFacts()) ...[
               const SizedBox(height: 12),
-              _buildSelectedFact(context),
+              _buildSelectedFacts(context),
             ],
           ],
         ),
@@ -35,19 +35,25 @@ class StartFactSection extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withValues(alpha: 0.2),
+            color: AppTheme.primaryColor,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppTheme.primaryColor, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: const Icon(
             Icons.play_circle_outline,
-            color: AppTheme.primaryColor,
+            color: Colors.white,
             size: 20,
           ),
         ),
         const SizedBox(width: 12),
         Text(
-          'Стартовый факт',
+          'Стартовые факты',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w600,
             color: AppTheme.primaryColor,
@@ -59,40 +65,81 @@ class StartFactSection extends StatelessWidget {
 
   Widget _buildDescription(BuildContext context) {
     return Text(
-      'Выберите один факт, который будет показан игроку в начале игры',
+      'Выберите стартовый факт для каждого персонажа. Этот факт будет показан игроку в начале игры',
       style: Theme.of(
         context,
       ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
     );
   }
 
-  Widget _buildSelectedFact(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppTheme.primaryColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.check_circle,
-            color: AppTheme.primaryColor,
-            size: 20,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              gameData.getSelectedStartFactText(),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.primaryColor,
-                fontWeight: FontWeight.w500,
+  bool _hasSelectedStartFacts() {
+    return gameData.persons.any(
+      (person) => person.facts.any((fact) => fact.isStartFact),
+    );
+  }
+
+  Widget _buildSelectedFacts(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children:
+          gameData.persons.asMap().entries.map((entry) {
+            final index = entry.key;
+            final person = entry.value;
+            final startFact = person.facts.firstWhere(
+              (fact) => fact.isStartFact,
+              orElse: () => FactData(),
+            );
+            if (!startFact.isStartFact) return const SizedBox.shrink();
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                ),
               ),
-            ),
-          ),
-        ],
-      ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.check_circle,
+                    color: AppTheme.primaryColor,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          person.name.isNotEmpty
+                              ? person.name
+                              : 'Персонаж ${index + 1}',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          startFact.text,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
     );
   }
 }

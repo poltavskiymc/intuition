@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intuition/core/theme/app_theme.dart';
 import 'package:intuition/features/game_creation/models/game_creation_models.dart';
+import 'package:intuition/shared/widgets/custom_text_field.dart';
+import 'package:intuition/shared/widgets/custom_button.dart';
 
 class FactCard extends StatelessWidget {
   final int personIndex;
@@ -11,8 +13,6 @@ class FactCard extends StatelessWidget {
   final void Function(int) onStartFactChanged;
   final void Function(String) onFactTextChanged;
   final void Function(bool) onFactTypeChanged;
-  final int Function() getFactGlobalIndex;
-
   const FactCard({
     super.key,
     required this.personIndex,
@@ -23,7 +23,6 @@ class FactCard extends StatelessWidget {
     required this.onStartFactChanged,
     required this.onFactTextChanged,
     required this.onFactTypeChanged,
-    required this.getFactGlobalIndex,
   });
   @override
   Widget build(BuildContext context) {
@@ -57,20 +56,11 @@ class FactCard extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: TextFormField(
+          child: FactTextField(
             initialValue: fact.text,
-            decoration: InputDecoration(
-              labelText: 'Факт ${factIndex + 1}',
-              hintText: 'Введите факт о персонаже',
-              prefixIcon: Icon(
-                fact.isSecret ? Icons.lock : Icons.info_outline,
-                color:
-                    fact.isSecret
-                        ? AppTheme.secretCardColor
-                        : AppTheme.hintCardColor,
-              ),
-            ),
             onChanged: onFactTextChanged,
+            factIndex: factIndex,
+            isSecret: fact.isSecret,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Введите факт';
@@ -80,11 +70,7 @@ class FactCard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        IconButton(
-          onPressed: onRemove,
-          icon: const Icon(Icons.delete_outline, color: Colors.red),
-          iconSize: 18,
-        ),
+        DeleteButton(onPressed: onRemove, tooltip: 'Удалить факт'),
       ],
     );
   }
@@ -119,14 +105,15 @@ class FactCard extends StatelessWidget {
   }
 
   Widget _buildStartFactRadio(BuildContext context) {
-    final factGlobalIndex = getFactGlobalIndex();
     return Row(
       children: [
         Radio<int>(
-          value: factGlobalIndex,
+          value: factIndex,
           groupValue: selectedStartFactIndex,
           onChanged: (value) {
-            onStartFactChanged(value ?? -1);
+            if (value != null) {
+              onStartFactChanged(factIndex);
+            }
           },
           activeColor: AppTheme.primaryColor,
         ),

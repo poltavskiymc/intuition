@@ -28,23 +28,31 @@ class PersonData {
 class FactData {
   String text = '';
   bool isSecret = false;
+  bool isStartFact = false; // Является ли этот факт стартовым для персонажа
 
   FactData();
 
   FactData.fromJson(Map<String, dynamic> json)
     : text = json['text'] as String? ?? '',
-      isSecret = json['isSecret'] as bool? ?? false;
+      isSecret = json['isSecret'] as bool? ?? false,
+      isStartFact = json['isStartFact'] as bool? ?? false;
 
-  Map<String, dynamic> toJson() => {'text': text, 'isSecret': isSecret};
+  Map<String, dynamic> toJson() => {
+    'text': text,
+    'isSecret': isSecret,
+    'isStartFact': isStartFact,
+  };
 
-  FactData copyWith({String? text, bool? isSecret}) {
+  FactData copyWith({String? text, bool? isSecret, bool? isStartFact}) {
     return FactData()
       ..text = text ?? this.text
-      ..isSecret = isSecret ?? this.isSecret;
+      ..isSecret = isSecret ?? this.isSecret
+      ..isStartFact = isStartFact ?? this.isStartFact;
   }
 
   @override
-  String toString() => 'FactData(text: $text, isSecret: $isSecret)';
+  String toString() =>
+      'FactData(text: $text, isSecret: $isSecret, isStartFact: $isStartFact)';
 }
 
 class GameCreationData {
@@ -136,10 +144,9 @@ class GameCreationData {
           errors.add('У персонажа ${i + 1} не заполнен факт ${j + 1}');
         }
       }
-    }
-
-    if (selectedStartFactIndex < 0) {
-      errors.add('Выберите стартовый факт');
+      if (!persons[i].facts.any((fact) => fact.isStartFact)) {
+        errors.add('У персонажа ${i + 1} не выбран стартовый факт');
+      }
     }
 
     return errors;
